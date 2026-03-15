@@ -48,11 +48,7 @@ function sendJsonRpc(
   res.end(JSON.stringify(body))
 }
 
-function rpcError(
-  code: number,
-  message: string,
-  data?: unknown
-): JsonRpcError {
+function rpcError(code: number, message: string, data?: unknown): JsonRpcError {
   return { code, message, ...(data !== undefined ? { data } : {}) }
 }
 
@@ -90,6 +86,7 @@ export function handleA2A(
 ): Middleware {
   const targetPath = options?.path ?? '/'
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   return async (req, res, next) => {
     // Only handle POST to the target path
     const url = req.url?.split('?')[0]
@@ -102,7 +99,12 @@ export function handleA2A(
     try {
       body = await readBody(req)
     } catch {
-      sendJsonRpc(res, 0, undefined, rpcError(A2A_ERROR_CODES.PARSE_ERROR, 'Failed to read request body'))
+      sendJsonRpc(
+        res,
+        0,
+        undefined,
+        rpcError(A2A_ERROR_CODES.PARSE_ERROR, 'Failed to read request body')
+      )
       return
     }
 
@@ -110,7 +112,12 @@ export function handleA2A(
     try {
       request = JSON.parse(body)
     } catch {
-      sendJsonRpc(res, 0, undefined, rpcError(A2A_ERROR_CODES.PARSE_ERROR, 'Invalid JSON'))
+      sendJsonRpc(
+        res,
+        0,
+        undefined,
+        rpcError(A2A_ERROR_CODES.PARSE_ERROR, 'Invalid JSON')
+      )
       return
     }
 
@@ -119,7 +126,10 @@ export function handleA2A(
         res,
         request?.id ?? 0,
         undefined,
-        rpcError(A2A_ERROR_CODES.INVALID_REQUEST, 'Invalid JSON-RPC 2.0 request')
+        rpcError(
+          A2A_ERROR_CODES.INVALID_REQUEST,
+          'Invalid JSON-RPC 2.0 request'
+        )
       )
       return
     }
@@ -129,7 +139,15 @@ export function handleA2A(
         case 'tasks/send': {
           const params = request.params as unknown as SendTaskParams
           if (!params?.message) {
-            sendJsonRpc(res, request.id, undefined, rpcError(A2A_ERROR_CODES.INVALID_PARAMS, 'Missing required "message" in params'))
+            sendJsonRpc(
+              res,
+              request.id,
+              undefined,
+              rpcError(
+                A2A_ERROR_CODES.INVALID_PARAMS,
+                'Missing required "message" in params'
+              )
+            )
             return
           }
           if (!params.id) {
@@ -142,12 +160,28 @@ export function handleA2A(
 
         case 'tasks/get': {
           if (!handlers.onGetTask) {
-            sendJsonRpc(res, request.id, undefined, rpcError(A2A_ERROR_CODES.UNSUPPORTED_OPERATION, 'tasks/get is not supported'))
+            sendJsonRpc(
+              res,
+              request.id,
+              undefined,
+              rpcError(
+                A2A_ERROR_CODES.UNSUPPORTED_OPERATION,
+                'tasks/get is not supported'
+              )
+            )
             return
           }
           const params = request.params as unknown as GetTaskParams
           if (!params?.id) {
-            sendJsonRpc(res, request.id, undefined, rpcError(A2A_ERROR_CODES.INVALID_PARAMS, 'Missing required "id" in params'))
+            sendJsonRpc(
+              res,
+              request.id,
+              undefined,
+              rpcError(
+                A2A_ERROR_CODES.INVALID_PARAMS,
+                'Missing required "id" in params'
+              )
+            )
             return
           }
           const task = await handlers.onGetTask(params)
@@ -157,12 +191,28 @@ export function handleA2A(
 
         case 'tasks/cancel': {
           if (!handlers.onCancelTask) {
-            sendJsonRpc(res, request.id, undefined, rpcError(A2A_ERROR_CODES.TASK_NOT_CANCELABLE, 'tasks/cancel is not supported'))
+            sendJsonRpc(
+              res,
+              request.id,
+              undefined,
+              rpcError(
+                A2A_ERROR_CODES.TASK_NOT_CANCELABLE,
+                'tasks/cancel is not supported'
+              )
+            )
             return
           }
           const params = request.params as unknown as CancelTaskParams
           if (!params?.id) {
-            sendJsonRpc(res, request.id, undefined, rpcError(A2A_ERROR_CODES.INVALID_PARAMS, 'Missing required "id" in params'))
+            sendJsonRpc(
+              res,
+              request.id,
+              undefined,
+              rpcError(
+                A2A_ERROR_CODES.INVALID_PARAMS,
+                'Missing required "id" in params'
+              )
+            )
             return
           }
           const task = await handlers.onCancelTask(params)
@@ -175,7 +225,10 @@ export function handleA2A(
             res,
             request.id,
             undefined,
-            rpcError(A2A_ERROR_CODES.METHOD_NOT_FOUND, `Unknown method: "${request.method}"`)
+            rpcError(
+              A2A_ERROR_CODES.METHOD_NOT_FOUND,
+              `Unknown method: "${request.method}"`
+            )
           )
       }
     } catch (err) {

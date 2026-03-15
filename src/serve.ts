@@ -19,7 +19,11 @@ type Middleware = (
 ) => void
 
 type HonoMiddleware = (
-  c: { req: { path: string }; json: (data: unknown) => unknown; header: (name: string, value: string) => void },
+  c: {
+    req: { path: string }
+    json: (data: unknown) => unknown
+    header: (name: string, value: string) => void
+  },
   next: () => Promise<void>
 ) => Promise<unknown>
 

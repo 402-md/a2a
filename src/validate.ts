@@ -32,7 +32,7 @@ export function validateAgentCard(
 
   // Required string fields
   for (const field of REQUIRED_STRING_FIELDS) {
-    if (typeof card[field] !== 'string' || (card[field] as string).trim() === '') {
+    if (typeof card[field] !== 'string' || card[field].trim() === '') {
       errors.push(`Missing or empty required field: "${field}"`)
     }
   }
@@ -92,7 +92,9 @@ export function validateAgentCard(
 
   // Warnings for recommended fields
   if (!card.skills || !Array.isArray(card.skills) || card.skills.length === 0) {
-    warnings.push('No "skills" defined — agents may not know what this agent can do')
+    warnings.push(
+      'No "skills" defined — agents may not know what this agent can do'
+    )
   } else {
     for (let i = 0; i < card.skills.length; i++) {
       const skill = card.skills[i] as Record<string, unknown>

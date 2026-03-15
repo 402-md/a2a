@@ -98,19 +98,31 @@ export class A2AClient {
         ? { id: id ?? crypto.randomUUID(), message: paramsOrMessage }
         : paramsOrMessage
 
-    return this.rpc<Task>('tasks/send', params as unknown as Record<string, unknown>)
+    return this.rpc<Task>(
+      'tasks/send',
+      params as unknown as Record<string, unknown>
+    )
   }
 
   /** Get the current status and history of a task */
   async getTask(id: string, historyLength?: number): Promise<Task> {
-    const params: GetTaskParams = { id, ...(historyLength !== undefined ? { historyLength } : {}) }
-    return this.rpc<Task>('tasks/get', params as unknown as Record<string, unknown>)
+    const params: GetTaskParams = {
+      id,
+      ...(historyLength !== undefined ? { historyLength } : {})
+    }
+    return this.rpc<Task>(
+      'tasks/get',
+      params as unknown as Record<string, unknown>
+    )
   }
 
   /** Cancel a running task */
   async cancelTask(id: string): Promise<Task> {
     const params: CancelTaskParams = { id }
-    return this.rpc<Task>('tasks/cancel', params as unknown as Record<string, unknown>)
+    return this.rpc<Task>(
+      'tasks/cancel',
+      params as unknown as Record<string, unknown>
+    )
   }
 
   /**
@@ -142,7 +154,9 @@ export class A2AClient {
     }
 
     if (!res.body) {
-      throw new A2AClientError('Response body is null — streaming not supported')
+      throw new A2AClientError(
+        'Response body is null — streaming not supported'
+      )
     }
 
     const reader = res.body.getReader()
